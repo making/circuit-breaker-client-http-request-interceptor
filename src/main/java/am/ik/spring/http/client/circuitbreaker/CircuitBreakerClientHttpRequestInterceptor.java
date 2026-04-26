@@ -19,8 +19,6 @@ import am.ik.spring.http.client.circuitbreaker.CircuitBreakerLifecycle.ResponseO
 import java.io.IOException;
 import java.util.Objects;
 import org.jspecify.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
@@ -53,8 +51,6 @@ public class CircuitBreakerClientHttpRequestInterceptor implements ClientHttpReq
 	private final FailurePredicate failurePredicate;
 
 	private final CircuitBreakerLifecycle lifecycle;
-
-	private final Logger log = LoggerFactory.getLogger(CircuitBreakerClientHttpRequestInterceptor.class);
 
 	/**
 	 * Creates an interceptor that uses the same circuit breaker for every request.
@@ -104,8 +100,6 @@ public class CircuitBreakerClientHttpRequestInterceptor implements ClientHttpReq
 			throws IOException {
 		CircuitBreaker circuitBreaker = this.circuitBreakerProvider.get(request);
 		if (!circuitBreaker.tryAcquirePermission()) {
-			this.log.debug("type=rej circuitBreaker=\"{}\" state={} method={} url=\"{}\"", circuitBreaker.name(),
-					circuitBreaker.state(), request.getMethod(), request.getURI());
 			this.lifecycle.onCallNotPermitted(circuitBreaker, request);
 			throw new CallNotPermittedException(circuitBreaker);
 		}
