@@ -31,8 +31,8 @@ import org.springframework.http.client.ClientHttpResponse;
  * Default log levels are:
  * <ul>
  * <li>{@link Level#DEBUG} for {@code onSuccess}
- * <li>{@link Level#WARN} for {@code onFailure}
- * <li>{@link Level#WARN} for {@code onCallNotPermitted}
+ * <li>{@link Level#INFO} for {@code onFailure}
+ * <li>{@link Level#INFO} for {@code onCallNotPermitted}
  * </ul>
  *
  * <p>
@@ -71,7 +71,7 @@ public class LoggingCircuitBreakerLifecycle implements CircuitBreakerLifecycle {
 	 * Creates a lifecycle with the default logger and default levels.
 	 */
 	public LoggingCircuitBreakerLifecycle() {
-		this(DEFAULT_LOGGER, Level.DEBUG, Level.WARN, Level.WARN, false);
+		this(DEFAULT_LOGGER, Level.DEBUG, Level.INFO, Level.INFO, false);
 	}
 
 	private LoggingCircuitBreakerLifecycle(Logger logger, Level successLevel, Level failureLevel,
@@ -156,9 +156,9 @@ public class LoggingCircuitBreakerLifecycle implements CircuitBreakerLifecycle {
 
 		private Level successLevel = Level.DEBUG;
 
-		private Level failureLevel = Level.WARN;
+		private Level failureLevel = Level.INFO;
 
-		private Level callNotPermittedLevel = Level.WARN;
+		private Level callNotPermittedLevel = Level.INFO;
 
 		private boolean includeCauseOnFailure = false;
 
@@ -199,7 +199,7 @@ public class LoggingCircuitBreakerLifecycle implements CircuitBreakerLifecycle {
 		}
 
 		/**
-		 * Sets the log level used by {@code onFailure}. Defaults to {@link Level#WARN}.
+		 * Sets the log level used by {@code onFailure}. Defaults to {@link Level#INFO}.
 		 * @param level the level
 		 * @return this builder
 		 */
@@ -210,7 +210,7 @@ public class LoggingCircuitBreakerLifecycle implements CircuitBreakerLifecycle {
 
 		/**
 		 * Sets the log level used by {@code onCallNotPermitted}. Defaults to
-		 * {@link Level#WARN}.
+		 * {@link Level#INFO}.
 		 * @param level the level
 		 * @return this builder
 		 */

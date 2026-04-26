@@ -335,7 +335,7 @@ public class DefaultCircuitBreaker implements CircuitBreaker {
 		clearSlidingWindow();
 		clearHalfOpen();
 		if (previous != State.OPEN) {
-			log.info("Circuit breaker '{}' transitioned from {} to OPEN", this.name, previous);
+			log.warn("Circuit breaker '{}' transitioned from {} to OPEN", this.name, previous);
 		}
 	}
 
