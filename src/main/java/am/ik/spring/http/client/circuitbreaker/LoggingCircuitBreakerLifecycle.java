@@ -43,8 +43,15 @@ import org.springframework.http.client.ClientHttpResponse;
  *     .successLevel(Level.TRACE)
  *     .failureLevel(Level.ERROR)
  *     .callNotPermittedLevel(Level.ERROR)
+ *     .includeCauseOnFailure(true)
  *     .build();
  * }</pre>
+ *
+ * <p>
+ * By default, exceptions reported to {@code onFailure} are <em>not</em> attached to the
+ * log record as a cause (only the exception class name appears in the {@code outcome}
+ * field). Set {@link Builder#includeCauseOnFailure(boolean)} to {@code true} to attach
+ * the exception as the log record's throwable so the stack trace is rendered.
  */
 public class LoggingCircuitBreakerLifecycle implements CircuitBreakerLifecycle {
 
@@ -58,20 +65,23 @@ public class LoggingCircuitBreakerLifecycle implements CircuitBreakerLifecycle {
 
 	private final Level callNotPermittedLevel;
 
+	private final boolean includeCauseOnFailure;
+
 	/**
 	 * Creates a lifecycle with the default logger and default levels.
 	 */
 	public LoggingCircuitBreakerLifecycle() {
-		this(DEFAULT_LOGGER, Level.DEBUG, Level.WARN, Level.WARN);
+		this(DEFAULT_LOGGER, Level.DEBUG, Level.WARN, Level.WARN, false);
 	}
 
 	private LoggingCircuitBreakerLifecycle(Logger logger, Level successLevel, Level failureLevel,
-			Level callNotPermittedLevel) {
+			Level callNotPermittedLevel, boolean includeCauseOnFailure) {
 		this.logger = Objects.requireNonNull(logger, "logger must not be null");
 		this.successLevel = Objects.requireNonNull(successLevel, "successLevel must not be null");
 		this.failureLevel = Objects.requireNonNull(failureLevel, "failureLevel must not be null");
 		this.callNotPermittedLevel = Objects.requireNonNull(callNotPermittedLevel,
 				"callNotPermittedLevel must not be null");
+		this.includeCauseOnFailure = includeCauseOnFailure;
 	}
 
 	/**
@@ -97,12 +107,13 @@ public class LoggingCircuitBreakerLifecycle implements CircuitBreakerLifecycle {
 		if (!this.logger.isEnabledForLevel(this.failureLevel)) {
 			return;
 		}
-		Throwable error = responseOrException.exception();
-		this.logger.atLevel(this.failureLevel)
-			.setCause(error)
-			.log("type=fail circuitBreaker=\"{}\" state={} method={} url=\"{}\" outcome=\"{}\"", circuitBreaker.name(),
-					circuitBreaker.state(), request.getMethod(), request.getURI(),
-					describeOutcome(responseOrException));
+		var builder = this.logger.atLevel(this.failureLevel);
+		if (this.includeCauseOnFailure) {
+			builder = builder.setCause(responseOrException.exception());
+		}
+		builder.log("type=fail circuitBreaker=\"{}\" state={} method={} url=\"{}\" outcome=\"{}\"",
+				circuitBreaker.name(), circuitBreaker.state(), request.getMethod(), request.getURI(),
+				describeOutcome(responseOrException));
 	}
 
 	@Override
@@ -148,6 +159,8 @@ public class LoggingCircuitBreakerLifecycle implements CircuitBreakerLifecycle {
 		private Level failureLevel = Level.WARN;
 
 		private Level callNotPermittedLevel = Level.WARN;
+
+		private boolean includeCauseOnFailure = false;
 
 		private Builder() {
 		}
@@ -207,13 +220,25 @@ public class LoggingCircuitBreakerLifecycle implements CircuitBreakerLifecycle {
 		}
 
 		/**
+		 * Sets whether the exception passed to {@code onFailure} is attached to the log
+		 * record as a cause (so the stack trace is rendered). Defaults to {@code false}.
+		 * @param includeCauseOnFailure whether to attach the exception as the log
+		 * record's throwable
+		 * @return this builder
+		 */
+		public Builder includeCauseOnFailure(boolean includeCauseOnFailure) {
+			this.includeCauseOnFailure = includeCauseOnFailure;
+			return this;
+		}
+
+		/**
 		 * Builds the lifecycle.
 		 * @return the lifecycle
 		 */
 		public LoggingCircuitBreakerLifecycle build() {
 			Logger effectiveLogger = (this.logger != null) ? this.logger : DEFAULT_LOGGER;
 			return new LoggingCircuitBreakerLifecycle(effectiveLogger, this.successLevel, this.failureLevel,
-					this.callNotPermittedLevel);
+					this.callNotPermittedLevel, this.includeCauseOnFailure);
 		}
 
 	}

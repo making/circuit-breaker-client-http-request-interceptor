@@ -82,9 +82,27 @@ class LoggingCircuitBreakerLifecycleTest {
 	}
 
 	@Test
-	void onFailureLogsExceptionWithCause() {
+	void onFailureLogsExceptionOutcomeWithoutCauseByDefault() {
 		captureLogs(events -> {
 			LoggingCircuitBreakerLifecycle lifecycle = new LoggingCircuitBreakerLifecycle();
+			IOException cause = new IOException("boom");
+
+			lifecycle.onFailure(this.circuitBreaker, this.request, ResponseOrException.ofException(cause));
+
+			assertThat(events).hasSize(1);
+			ILoggingEvent event = events.get(0);
+			assertThat(event.getLevel()).isEqualTo(Level.WARN);
+			assertThat(event.getFormattedMessage()).contains("type=fail").contains("outcome=\"java.io.IOException\"");
+			assertThat(event.getThrowableProxy()).isNull();
+		});
+	}
+
+	@Test
+	void onFailureAttachesCauseWhenIncludeCauseOnFailureEnabled() {
+		captureLogs(events -> {
+			LoggingCircuitBreakerLifecycle lifecycle = LoggingCircuitBreakerLifecycle.builder()
+				.includeCauseOnFailure(true)
+				.build();
 			IOException cause = new IOException("boom");
 
 			lifecycle.onFailure(this.circuitBreaker, this.request, ResponseOrException.ofException(cause));
