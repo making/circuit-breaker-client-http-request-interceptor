@@ -163,7 +163,7 @@ When all you need is to log every event, use the bundled
 CircuitBreakerLifecycle lifecycle = new LoggingCircuitBreakerLifecycle();
 ```
 
-It logs `onSuccess` at `DEBUG`, `onFailure` and `onCallNotPermitted` at `WARN`. The
+It logs `onSuccess` at `DEBUG`, `onFailure` and `onCallNotPermitted` at `INFO`. The
 levels and the underlying SLF4J logger can be customized through the builder:
 
 ```java

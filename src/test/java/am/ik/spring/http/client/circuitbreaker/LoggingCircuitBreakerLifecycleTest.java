@@ -75,7 +75,7 @@ class LoggingCircuitBreakerLifecycleTest {
 
 			assertThat(events).hasSize(1);
 			ILoggingEvent event = events.get(0);
-			assertThat(event.getLevel()).isEqualTo(Level.WARN);
+			assertThat(event.getLevel()).isEqualTo(Level.INFO);
 			assertThat(event.getFormattedMessage()).contains("type=fail").contains("outcome=\"status=503\"");
 			assertThat(event.getThrowableProxy()).isNull();
 		});
@@ -91,7 +91,7 @@ class LoggingCircuitBreakerLifecycleTest {
 
 			assertThat(events).hasSize(1);
 			ILoggingEvent event = events.get(0);
-			assertThat(event.getLevel()).isEqualTo(Level.WARN);
+			assertThat(event.getLevel()).isEqualTo(Level.INFO);
 			assertThat(event.getFormattedMessage()).contains("type=fail").contains("outcome=\"java.io.IOException\"");
 			assertThat(event.getThrowableProxy()).isNull();
 		});
@@ -109,7 +109,7 @@ class LoggingCircuitBreakerLifecycleTest {
 
 			assertThat(events).hasSize(1);
 			ILoggingEvent event = events.get(0);
-			assertThat(event.getLevel()).isEqualTo(Level.WARN);
+			assertThat(event.getLevel()).isEqualTo(Level.INFO);
 			assertThat(event.getFormattedMessage()).contains("type=fail").contains("outcome=\"java.io.IOException\"");
 			assertThat(event.getThrowableProxy()).isNotNull();
 			assertThat(event.getThrowableProxy().getMessage()).isEqualTo("boom");
