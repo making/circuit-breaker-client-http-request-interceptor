@@ -24,7 +24,7 @@ through a `RestTemplate` or `RestClient`, including per-host isolation.
 <dependency>
     <groupId>am.ik.spring</groupId>
     <artifactId>circuit-breaker-client-http-request-interceptor</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
 </dependency>
 ```
 
