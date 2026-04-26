@@ -188,20 +188,25 @@ CircuitBreakerClientHttpRequestInterceptor interceptor =
 ## State machine
 
 ```
-            failure rate ≥ threshold
-   ┌───────────────────────────────────┐
-   │                                   ▼
-CLOSED ◀─── all probes succeed ─── HALF_OPEN ◀── waitDuration elapsed ─── OPEN
-                                       │                                   ▲
-                                       └──── any probe fails / rate ≥ ────┘
+              failure / slow call rate ≥ threshold
+   ┌──────────────────────────────────────────────────┐
+   │                                                  ▼
+CLOSED ◀── probe rates below threshold ── HALF_OPEN ◀── waitDuration elapsed ── OPEN
+                                              │                                  ▲
+                                              └── probe rates ≥ threshold ───────┘
 ```
 
 - `CLOSED`: every call passes through. Outcomes are recorded in the sliding window.
+  Once at least `minimumNumberOfCalls` have been recorded, the circuit transitions to
+  `OPEN` if the failure rate or slow call rate reaches its threshold.
 - `OPEN`: every call is rejected with `CallNotPermittedException`. After
-  `waitDurationInOpenState`, the next call attempt transitions to `HALF_OPEN`.
+  `waitDurationInOpenState`, the next call attempt transitions the circuit to
+  `HALF_OPEN`.
 - `HALF_OPEN`: up to `permittedNumberOfCallsInHalfOpenState` probe calls are permitted.
-  When all probes complete, the failure rate of the probe window decides whether the
-  circuit returns to `CLOSED` or back to `OPEN`.
+  Evaluation happens only after **all** permitted probes have completed:
+  - if the failure rate or slow call rate is at or above its threshold, the circuit
+    returns to `OPEN`,
+  - otherwise it transitions to `CLOSED`.
 
 ## License
 
