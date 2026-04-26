@@ -6,7 +6,7 @@
 
 	<groupId>am.ik.spring</groupId>
 	<artifactId>circuit-breaker-client-http-request-interceptor</artifactId>
-	<version>0.1.2</version>
+	<version>0.1.3-SNAPSHOT</version>
 	<name>circuit-breaker-client-http-request-interceptor</name>
 	<description>A Spring ClientHttpRequestInterceptor that wraps outbound HTTP calls (RestTemplate / RestClient) with a self-contained, thread-safe Circuit Breaker. Provides per-host or shared circuit breakers, configurable failure predicates (HTTP status codes and exceptions), slow-call detection, and lifecycle hooks, with no runtime dependency on resilience4j.</description>
 
