@@ -20,6 +20,8 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.locks.ReentrantLock;
 import org.jspecify.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Default thread-safe {@link CircuitBreaker} based on a count-based sliding window.
@@ -36,6 +38,8 @@ import org.jspecify.annotations.Nullable;
  * circuit transitions to {@code CLOSED} or back to {@code OPEN}.
  */
 public class DefaultCircuitBreaker implements CircuitBreaker {
+
+	private static final Logger log = LoggerFactory.getLogger(DefaultCircuitBreaker.class);
 
 	private static final byte FAILED = 0x01;
 
@@ -325,25 +329,37 @@ public class DefaultCircuitBreaker implements CircuitBreaker {
 	}
 
 	private void doTransitionToOpen() {
+		State previous = this.state;
 		this.state = State.OPEN;
 		this.openedAtMillis = this.instantSource.millis();
 		clearSlidingWindow();
 		clearHalfOpen();
+		if (previous != State.OPEN) {
+			log.info("Circuit breaker '{}' transitioned from {} to OPEN", this.name, previous);
+		}
 	}
 
 	private void doTransitionToClosed() {
+		State previous = this.state;
 		this.state = State.CLOSED;
 		clearSlidingWindow();
 		clearHalfOpen();
+		if (previous != State.CLOSED) {
+			log.info("Circuit breaker '{}' transitioned from {} to CLOSED", this.name, previous);
+		}
 	}
 
 	private void doTransitionToHalfOpen() {
+		State previous = this.state;
 		this.state = State.HALF_OPEN;
 		clearSlidingWindow();
 		this.halfOpenPermitsLeft = this.config.permittedNumberOfCallsInHalfOpenState();
 		this.halfOpenCallsCompleted = 0;
 		this.halfOpenFailedCalls = 0;
 		this.halfOpenSlowCalls = 0;
+		if (previous != State.HALF_OPEN) {
+			log.info("Circuit breaker '{}' transitioned from {} to HALF_OPEN", this.name, previous);
+		}
 	}
 
 	private void clearSlidingWindow() {
