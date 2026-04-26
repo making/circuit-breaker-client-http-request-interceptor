@@ -156,6 +156,25 @@ CircuitBreakerClientHttpRequestInterceptor.builder()
     .build();
 ```
 
+When all you need is to log every event, use the bundled
+`LoggingCircuitBreakerLifecycle`:
+
+```java
+CircuitBreakerLifecycle lifecycle = new LoggingCircuitBreakerLifecycle();
+```
+
+It logs `onSuccess` at `DEBUG`, `onFailure` and `onCallNotPermitted` at `WARN`. The
+levels and the underlying SLF4J logger can be customized through the builder:
+
+```java
+CircuitBreakerLifecycle lifecycle = LoggingCircuitBreakerLifecycle.builder()
+    .successLevel(Level.TRACE)
+    .failureLevel(Level.ERROR)
+    .callNotPermittedLevel(Level.ERROR)
+    .loggerName("circuit-breaker")
+    .build();
+```
+
 ## The Builder
 
 For full control, use the builder. Exactly one of `circuitBreaker`, `registry`,
