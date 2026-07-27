@@ -22,6 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Function;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * In-memory registry of {@link CircuitBreaker} instances keyed by name. New circuit
  * breakers are created on demand using the configured factory.
@@ -75,7 +77,7 @@ public class CircuitBreakerRegistry {
 	 * @param name the name
 	 * @return the removed circuit breaker, or {@code null} if none was registered
 	 */
-	public CircuitBreaker remove(String name) {
+	public @Nullable CircuitBreaker remove(String name) {
 		return this.circuitBreakers.remove(name);
 	}
 
